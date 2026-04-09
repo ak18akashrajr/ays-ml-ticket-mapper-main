@@ -1,0 +1,1 @@
+["severity_prob_Critical", "severity_prob_High", "severity_prob_Medium", "severity_prob_Low", "hour_of_day", "day_of_week", "is_business_hour", "is_weekend", "escalation_count", "reopen_count", "token_count", "user_ticket_frequency", "user_avg_severity_encoded"]

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Triage Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f111a;
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --critical: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Results Panel */
+        #results-panel {
+            opacity: 0.3;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        #results-panel.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .target-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .prediction-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        /* Confidence Bar */
+        .confidence-wrapper {
+            margin-top: 1rem;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .bar-bg {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 3px;
+            transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .pill.auto {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .pill.review {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-text {
+            display: block;
+        }
+
+        .loading .btn-text {
+            display: none;
+        }
+
+        .loading .loader {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Input Panel -->
+        <div class="panel">
+            <div class="header">
+                <h1>New Incident Ticket</h1>
+                <p>Enter details below to run automated ML triage</p>
+            </div>
+
+            <div class="form-group">
+                <label>Ticket Number</label>
+                <input type="text" id="ticket_no" value="VZ_INC99214">
+            </div>
+
+            <div class="form-group">
+                <label>Affected User</label>
+                <input type="text" id="affected_user" value="Smith, John">
+            </div>
+
+            <div class="form-group">
+                <label>Creation Date (DD-MM-YYYY HH:MM:SS)</label>
+                <input type="text" id="created_at">
+            </div>
+
+            <div class="form-group">
+                <label>Issue Description</label>
+                <textarea
+                    id="description">I am unable to connect to the VPN. It keeps throwing ERR_502 connection refused after the latest Windows update. Please help immediately as I cannot access my files.</textarea>
+            </div>
+
+            <button id="run-btn" onclick="runTriage()">
+                <span class="btn-text">Run ML Triage</span>
+                <div class="loader"></div>
+            </button>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="panel" id="results-panel">
+            <div class="header" style="margin-bottom: 0.5rem">
+                <h1>Triage Results</h1>
+                <p id="inference-time">Awaiting execution...</p>
+            </div>
+
+            <div id="gate-pill" class="pill" style="display:none;"></div>
+
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="target-name">Severity (RoBERTa)</span>
+                    <span class="prediction-value" id="res-severity">-</span>
+                </div>
+                <div class="confidence-wrapper">
+                    <div class="confidence-label">
+                        <span>Confidence Score</span>
+                        <span id="score-severity">0%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="bar-severity"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="target-name">Priority (XGBoost)</span>
+                    <span class="prediction-value" id="res-priority">-</span>
+                </div>
+                <div class="confidence-wrapper">
+                    <div class="confidence-label">
+                        <span>Confidence Score</span>
+                        <span id="score-priority">0%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="bar-priority"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="target-name">Assigned queue (Random Forest)</span>
+                    <span class="prediction-value" id="res-queue">-</span>
+                </div>
+                <div class="confidence-wrapper">
+                    <div class="confidence-label">
+                        <span>Confidence Score</span>
+                        <span id="score-queue">0%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="bar-queue"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Preset date
+        const now = new Date();
+        const formatted = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        document.getElementById('created_at').value = formatted;
+
+        async function runTriage() {
+            const btn = document.getElementById('run-btn');
+            const panel = document.getElementById('results-panel');
+
+            btn.classList.add('loading');
+            panel.classList.remove('active');
+
+            const payload = {
+                ticket_no: document.getElementById('ticket_no').value,
+                created_at: document.getElementById('created_at').value,
+                affected_user: document.getElementById('affected_user').value,
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/triage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("API Error");
+
+                const data = await response.json();
+
+                // Update UI
+                document.getElementById('inference-time').innerText = `Processed in ${data.inference_time_ms}ms v${data.model_version}`;
+
+                // Gate
+                const pill = document.getElementById('gate-pill');
+                pill.style.display = 'inline-block';
+                const overallPct = Math.round(data.overall_confidence * 100);
+                if (data.auto_assign) {
+                    pill.className = 'pill auto';
+                    pill.innerText = "✓ HIGH OVERALL CONFIDENCE (" + overallPct + "%): AUTO-ASSIGNED";
+                } else {
+                    pill.className = 'pill review';
+                    pill.innerText = "⚠ REVIEW REQUIRED (" + overallPct + "% OVERALL): Check " + data.low_confidence_fields.join(", ");
+                }
+
+                // Severity
+                updateCard('severity', data.severity);
+                // Priority
+                updateCard('priority', data.priority);
+                // Queue
+                updateCard('queue', data.assigned_to);
+
+                panel.classList.add('active');
+            } catch (e) {
+                alert("Error connecting to API. Make sure uvicorn is running on port 8000.");
+                console.error(e);
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+
+        function updateCard(id, dataObj) {
+            document.getElementById(`res-${id}`).innerText = dataObj.label;
+
+            const pct = Math.round(dataObj.confidence * 100);
+            document.getElementById(`score-${id}`).innerText = `${pct}%`;
+
+            const bar = document.getElementById(`bar-${id}`);
+            // Reset to animate again
+            bar.style.width = '0%';
+
+            // Set color based on confidence
+            if (pct >= 80) bar.style.background = 'var(--success)';
+            else if (pct >= 50) bar.style.background = 'var(--warning)';
+            else bar.style.background = 'var(--danger)';
+
+            setTimeout(() => { bar.style.width = `${pct}%`; }, 100);
+        }
+    </script>
+</body>
+
+</html>

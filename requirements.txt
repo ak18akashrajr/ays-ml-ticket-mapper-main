@@ -1,0 +1,13 @@
+transformers
+sentence-transformers
+torch
+xgboost
+scikit-learn
+shap
+fastapi
+uvicorn[standard]
+pandas
+numpy
+faker
+python-dateutil
+pydantic
