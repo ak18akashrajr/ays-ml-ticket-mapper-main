@@ -1,0 +1,6 @@
+VZ_INC26410
+All users in the 'Remote Sales' group are unable to connect to the primary VPN gateway. Authentication failures are occurring universally. This is a complete blockage for remote work
+
+
+VZ_INC42168
+A new network printer PRN-HQ-03 is not discoverable via DNS for some users. IP direct connect works. Minor inconvenience.
