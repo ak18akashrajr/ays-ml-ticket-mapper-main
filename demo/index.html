@@ -253,6 +253,69 @@
             border-left: 4px solid var(--warning);
         }
 
+        /* Reasoning Section */
+        #reasoning-section {
+            margin-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid #757575;
+            color: #757575;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 2px;
+            width: auto;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+            border-color: #333;
+        }
+
+        #reasoning-container {
+            background: #f9f9f9;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .reasoning-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .reasoning-item {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reasoning-item::before {
+            content: "•";
+            color: var(--vz-red);
+            font-weight: bold;
+        }
+
+        .reasoning-item:last-child {
+            margin-bottom: 0;
+        }
+
         .loader {
             display: none;
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -375,7 +438,7 @@
                 </div>
             </div>
 
-            <div class="result-card">
+            <div class="result-card" style="border-bottom: none">
                 <div class="result-header">
                     <span class="target-name">Target Assignment</span>
                     <span class="prediction-value" id="res-queue">-</span>
@@ -388,6 +451,15 @@
                     <div class="bar-bg">
                         <div class="bar-fill" id="bar-queue"></div>
                     </div>
+                </div>
+            </div>
+
+            <div id="reasoning-section">
+                <button class="toggle-btn" id="toggle-btn" onclick="toggleReasoning()">Show Reasoning</button>
+                <div id="reasoning-container">
+                    <ul class="reasoning-list" id="reasoning-list">
+                        <!-- Populated by JS -->
+                    </ul>
                 </div>
             </div>
         </div>
@@ -446,12 +518,47 @@
                 // Queue
                 updateCard('queue', data.assigned_to);
 
+                // SHAP Reasoning
+                const reasoningSection = document.getElementById('reasoning-section');
+                const reasoningList = document.getElementById('reasoning-list');
+                const reasoningContainer = document.getElementById('reasoning-container');
+                const toggleBtn = document.getElementById('toggle-btn');
+                
+                reasoningList.innerHTML = '';
+                if (data.shap_reasons && data.shap_reasons.length > 0) {
+                    data.shap_reasons.forEach(reason => {
+                        const li = document.createElement('li');
+                        li.className = 'reasoning-item';
+                        li.innerText = reason;
+                        reasoningList.appendChild(li);
+                    });
+                    reasoningSection.style.display = 'block';
+                } else {
+                    reasoningSection.style.display = 'none';
+                }
+                
+                // Reset toggle state
+                reasoningContainer.style.display = 'none';
+                toggleBtn.innerText = 'Show Reasoning';
+
                 panel.classList.add('active');
             } catch (e) {
                 alert("Error connecting to API. Make sure uvicorn is running on port 8000.");
                 console.error(e);
             } finally {
                 btn.classList.remove('loading');
+            }
+        }
+
+        function toggleReasoning() {
+            const container = document.getElementById('reasoning-container');
+            const btn = document.getElementById('toggle-btn');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                btn.innerText = 'Hide Reasoning';
+            } else {
+                container.style.display = 'none';
+                btn.innerText = 'Show Reasoning';
             }
         }
 
