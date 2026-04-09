@@ -358,7 +358,7 @@
         <div class="navbar-brand">
             <img src="https://tse3.mm.bing.net/th/id/OIP.DeMH-6bd31N8XYjPFen1PgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
                 alt="Verizon Logo">
-            <span>Incident Triage AI</span>
+            <span>AYS VZ_Ticket AI</span>
         </div>
     </nav>
 
@@ -523,7 +523,7 @@
                 const reasoningList = document.getElementById('reasoning-list');
                 const reasoningContainer = document.getElementById('reasoning-container');
                 const toggleBtn = document.getElementById('toggle-btn');
-                
+
                 reasoningList.innerHTML = '';
                 if (data.shap_reasons && data.shap_reasons.length > 0) {
                     data.shap_reasons.forEach(reason => {
@@ -536,7 +536,7 @@
                 } else {
                     reasoningSection.style.display = 'none';
                 }
-                
+
                 // Reset toggle state
                 reasoningContainer.style.display = 'none';
                 toggleBtn.innerText = 'Show Reasoning';
