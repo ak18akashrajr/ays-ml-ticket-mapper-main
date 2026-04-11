@@ -32,3 +32,7 @@ Would you like the exact code snippets for saving the RoBERTa model so it's read
 [6] [https://discuss.streamlit.io](https://discuss.streamlit.io/t/train-the-model-on-colab-and-use-it-in-local/5191)
 [7] [https://www.youtube.com](https://www.youtube.com/watch?v=e8Syou92H8U&t=89)
 [8] [https://blog.roboflow.com](https://blog.roboflow.com/how-to-save-and-load-weights-in-google-colab/)
+
+
+flow as lead said, 
+problem -> understand -> solve(explain) -> impact
