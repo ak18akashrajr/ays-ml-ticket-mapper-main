@@ -387,8 +387,7 @@
 
             <div class="form-group">
                 <label>Issue Description</label>
-                <textarea
-                    id="description">All users in the 'Remote Sales' group are unable to connect to the primary VPN gateway. Authentication failures are occurring universally. This is a complete blockage for remote work</textarea>
+                <textarea id="description">All users in the 'Remote Sales' group are unable to connect to the primary VPN gateway. Authentication failures are occurring universally. This is a complete blockage for remote work</textarea>
             </div>
 
             <button id="run-btn" onclick="runTriage()">
@@ -466,7 +465,6 @@
     </div>
 
     <script>
-        // Preset date
         const now = new Date();
         const formatted = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         document.getElementById('created_at').value = formatted;

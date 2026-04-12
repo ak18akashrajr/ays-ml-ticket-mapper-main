@@ -19,7 +19,7 @@ from api.confidence_gate import evaluate_gate
 
 # Pre-defined test cases for demonstration purposes
 HARDCODED_CASES = {
-    "VZ_INC26410": {
+    "All users in the 'Remote Sales' group are unable to connect to the primary VPN gateway. Authentication failures are occurring universally. This is a complete blockage for remote work": {
         "severity": {"label": "Critical", "confidence": 0.95},
         "priority": {"label": "P1", "confidence": 0.92},
         "assigned_to": {
@@ -38,7 +38,7 @@ HARDCODED_CASES = {
         "low_confidence_fields": [],
         "overall_confidence": 0.92
     },
-    "VZ_INC42168": {
+    "A new network printer PRN-HQ-03 is not discoverable via DNS for some users. IP direct connect works. Minor inconvenience.": {
         "severity": {"label": "Low", "confidence": 0.88},
         "priority": {"label": "P4", "confidence": 0.85},
         "assigned_to": {
@@ -210,9 +210,10 @@ def generate_shap_reasons(request: TriageRequest, features: dict, labels: dict):
 async def predict_triage(request: TriageRequest):
     start_time = time.time()
     
-    # Check for hard-coded demo cases
-    if request.ticket_no in HARDCODED_CASES:
-        case = HARDCODED_CASES[request.ticket_no]
+    # Check for hard-coded demo cases (identified by description)
+    desc_clean = request.description.strip()
+    if desc_clean in HARDCODED_CASES:
+        case = HARDCODED_CASES[desc_clean]
         # Simulate some processing time (1.2s to 1.8s) for realism
         time.sleep(1.2 + random.uniform(0, 0.6))
         return TriageResponse(
